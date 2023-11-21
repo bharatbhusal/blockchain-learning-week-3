@@ -19,6 +19,10 @@ contract ByteArrya{
         b_dynamic.pop();
     }
 
+    function getElement(uint index) public view returns(bytes1) {
+        return b_dynamic[index];
+    }
+
     function len() public view returns(uint) {
         return b_dynamic.length;
     }
