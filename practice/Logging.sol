@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 contract Logging{
     event eventDemo(
-        uint    roll,
+        uint roll,
         uint age,
         string  name,
         string indexed last
