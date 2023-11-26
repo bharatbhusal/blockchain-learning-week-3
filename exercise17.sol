@@ -78,7 +78,7 @@ contract AdvancedTokenBharat is TokenBharat{
     }
 
     //user address mapping to the tuple of Locks. one user can have multiple lock duration for varying number of tokens.
-    mapping(address =>  Lock[]) public lockPeriodAndAmount;
+    mapping(address =>  Lock[]) private lockPeriodAndAmount;
 
     constructor() TokenBharat("AdvancedTokenBharat", "ABHT", 18, 500*(10**18), 5000*(10**18)){}
 
