@@ -1,3 +1,14 @@
+// Exercise 17: Advanced ERC-20 Token Contract
+// - Problem Statement:** Develop an enhanced version of the ERC-20 token named "AdvancedToken" with the following features:
+//     - Timed Lock:** Implement a mechanism where the owner can lock a user's tokens for a specified duration.
+//     - Mintable:** Only the contract owner can mint new tokens, up to a maximum supply limit.
+//     - Burnable:** Users should be able to burn their own tokens, reducing the total supply.
+        
+//      Make use of inheritance, modifiers, events, and advanced data types in Solidity.
+
+//=================================================================================================================================
+
+
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
