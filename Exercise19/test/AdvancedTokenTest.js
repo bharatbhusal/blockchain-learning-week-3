@@ -54,19 +54,17 @@ describe("AdvancedToken", function() {
         expect(await advancedToken.balances(addr1)).to.equal(80n * (10n ** 18n));
     });
 
-    // // Test locking function
-    // it("Should lock tokens for a specified duration", async function() {
-    //     // Mint some tokens first
-    //     await advancedToken.mintToOwner(100);
+    // Test locking function
+    it("Should lock tokens for a specified duration", async function() {
+        await advancedToken.connect(owner).lockToken(3600, 20n * (10n ** 18n), addr1);
+        // await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
 
-    //     await advancedToken.connect(owner).lockToken(3600, 20, user.address);
-
-    //     // Check the locked balance after some time (3600 seconds)
-    //     await network.provider.send("evm_increaseTime", [3600]);
-    //     await network.provider.send("evm_mine");
-
-    //     expect(await advancedToken.numberOfTokensLocked(user.address)).to.equal(20);
-    // });
+        // Check the locked balance after some time (3600 seconds)
+        await network.provider.send("evm_increaseTime", [3600]);
+        await network.provider.send("evm_mine");
+        await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
+        // expect(await advancedToken.numberOfTokensLocked(addr1)).to.equal(20n * (10n ** 18n));
+    });
 
     // Add more tests for edge cases and additional functionalities as needed
 });
