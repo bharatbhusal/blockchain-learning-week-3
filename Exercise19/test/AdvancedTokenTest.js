@@ -43,18 +43,16 @@ describe("AdvancedToken", function() {
         await advancedToken.connect(addr1).burn(20n * (10n ** 18n));
         await advancedToken.connect(owner).burn(20n * (10n ** 18n));
         expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
+        expect(await advancedToken.balances(owner)).to.equal(580n * (10n ** 18n));
         expect(await advancedToken.totalSupply()).to.equal(610n * (10n ** 18n));
     });
 
-    // // Test token transfer function
-    // it("Should transfer tokens between addresses", async function() {
-    //     // Mint some tokens first
-    //     await advancedToken.mintToOwner(100);
-
-    //     await advancedToken.connect(owner).transfer(user.address, 50);
-    //     expect(await advancedToken.balances(owner.address)).to.equal(50);
-    //     expect(await advancedToken.balances(user.address)).to.equal(50);
-    // });
+    // Test token transfer function
+    it("Should transfer tokens between addresses", async function() {
+        await advancedToken.connect(owner).transfer(50n * (10n ** 18n), addr1);
+        expect(await advancedToken.balances(owner)).to.equal(550n * (10n ** 18n));
+        expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
+    });
 
     // // Test locking function
     // it("Should lock tokens for a specified duration", async function() {
