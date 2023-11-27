@@ -12,15 +12,12 @@ describe("AdvancedToken", function() {
     it("Should deploy contract", async function() {
         advancedToken = await hre.ethers.deployContract("AdvancedToken", [], {});
         await advancedToken.waitForDeployment();
-
-        // owner = await advancedToken.owner();
         [owner, addr1] = await hre.ethers.getSigners();
 
     })
 
     // Test constructor
     it("Should deploy with correct initial values", async function() {
-
         expect(await advancedToken.name()).to.equal("AdvancedTokenBharat");
         expect(await advancedToken.symbol()).to.equal("ABHT");
         expect(await advancedToken.decimal()).to.equal(18);
@@ -36,21 +33,18 @@ describe("AdvancedToken", function() {
         expect(await advancedToken.balances(owner)).to.equal(600n * (10n ** 18n));
     });
 
-    it("Should mint tokens to user", async function() {
-        await advancedToken.connect(owner).mintToUser(addr1, 50n);
-        expect(await advancedToken.balances(addr1)).to.equal(50n);
+    it("Should mint tokens to user by owner", async function() {
+        await advancedToken.connect(owner).mintToUser(addr1, 50n * (10n ** 18n));
+        expect(await advancedToken.balances(addr1)).to.equal(50n * (10n ** 18n));
     });
 
-    // // Test burning function
-    // it("Should burn tokens from user", async function() {
-    //     // Mint some tokens first
-    //     await advancedToken.mintToOwner(100);
-    //     await advancedToken.connect(owner).mintToUser(user.address, 50);
-
-    //     await advancedToken.connect(user).burn(20);
-    //     expect(await advancedToken.balances(user.address)).to.equal(30);
-    //     expect(await advancedToken.totalSupply()).to.equal(130 * 10 ** 18);
-    // });
+    // Test burning function
+    it("Should burn tokens from user by user", async function() {
+        await advancedToken.connect(addr1).burn(20n * (10n ** 18n));
+        await advancedToken.connect(owner).burn(20n * (10n ** 18n));
+        expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
+        expect(await advancedToken.totalSupply()).to.equal(610n * (10n ** 18n));
+    });
 
     // // Test token transfer function
     // it("Should transfer tokens between addresses", async function() {
