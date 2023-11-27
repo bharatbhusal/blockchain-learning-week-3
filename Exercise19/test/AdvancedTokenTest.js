@@ -3,11 +3,24 @@ const {
 } = require("chai");
 
 describe("AdvancedToken", function() {
+    let advancedToken;
+    let owner;
+    let addr1;
+
+
+
+    it("Should deploy contract", async function() {
+        advancedToken = await hre.ethers.deployContract("AdvancedToken", [], {});
+        await advancedToken.waitForDeployment();
+
+        // owner = await advancedToken.owner();
+        [owner, addr1] = await hre.ethers.getSigners();
+
+    })
+
     // Test constructor
     it("Should deploy with correct initial values", async function() {
-        const advancedToken = await hre.ethers.deployContract("AdvancedToken", [], {});
-        await advancedToken.waitForDeployment();
-        const owner = await advancedToken.owner();
+
         expect(await advancedToken.name()).to.equal("AdvancedTokenBharat");
         expect(await advancedToken.symbol()).to.equal("ABHT");
         expect(await advancedToken.decimal()).to.equal(18);
@@ -16,17 +29,17 @@ describe("AdvancedToken", function() {
         expect(await advancedToken.balances(owner)).to.equal(500n * (10n ** 18n));
     });
 
-    // // Test minting functions
-    // it("Should mint tokens to owner", async function() {
-    //     await advancedToken.mintToOwner(100);
-    //     expect(await advancedToken.totalSupply()).to.equal(600 * 10 ** 18);
-    //     expect(await advancedToken.balances(owner.address)).to.equal(600 * 10 ** 18);
-    // });
+    // Test minting functions
+    it("Should mint tokens to owner", async function() {
+        await advancedToken.mintToOwner(100n * (10n ** 18n));
+        expect(await advancedToken.totalSupply()).to.equal(600n * (10n ** 18n));
+        expect(await advancedToken.balances(owner)).to.equal(600n * (10n ** 18n));
+    });
 
-    // it("Should mint tokens to user", async function() {
-    //     await advancedToken.connect(owner).mintToUser(user.address, 50);
-    //     expect(await advancedToken.balances(user.address)).to.equal(50);
-    // });
+    it("Should mint tokens to user", async function() {
+        await advancedToken.connect(owner).mintToUser(addr1, 50n);
+        expect(await advancedToken.balances(addr1)).to.equal(50n);
+    });
 
     // // Test burning function
     // it("Should burn tokens from user", async function() {
