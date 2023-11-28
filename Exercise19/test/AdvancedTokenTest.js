@@ -73,17 +73,21 @@ describe("AdvancedToken", function() {
 
     });
 
+    // Test burning function
+    it("Should burn tokens from user", async function() {
+        const totalSupply = await advancedToken.totalSupply();
+        const userBalance = await advancedToken.balances(addr1);
+        const tokensToBurn = userBalance - 1n;
+
+        await advancedToken.connect(addr1).burn(tokensToBurn);
+        await expect(advancedToken.connect(addr1).burn(tokensToBurn + 2n)).to.be.revertedWith("Insufficient balance");
+
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance - tokensToBurn);
+        expect(await advancedToken.totalSupply()).to.equal(totalSupply - tokensToBurn);
+    });
 
 
 
-    // // Test burning function
-    // it("Should burn tokens from user by user", async function() {
-    //     await advancedToken.connect(addr1).burn(20n * (10n ** 18n));
-    //     await advancedToken.connect(owner).burn(20n * (10n ** 18n));
-    //     expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
-    //     expect(await advancedToken.balances(owner)).to.equal(580n * (10n ** 18n));
-    //     expect(await advancedToken.totalSupply()).to.equal(610n * (10n ** 18n));
-    // });
 
     // // Test token transfer function
     // it("Should transfer tokens between addresses", async function() {
