@@ -20,8 +20,10 @@ contract TokenBharat {
     uint256 public totalSupply;
     uint256 public maxSupply;
 
-    // balance of the given address. balance getter function.
-    mapping(address => uint256) public balances;
+    event logMint(address indexed  by, address  indexed to, uint256 amount);
+    event logBurn(address indexed by, address indexed from, uint256 amount);
+    event logTransfer(address from, address to, uint256 amount);
+    event logLock(address indexed by, address indexed from, uint256 amount, uint256 duration);
 
     //modifier for features that only owner can run.
     modifier onlyOwner() {
@@ -31,6 +33,9 @@ contract TokenBharat {
         );
         _;
     }
+
+    // balance of the given address. balance getter function.
+    mapping(address => uint256) public balances;
 
     constructor(
         string memory _name,
@@ -67,6 +72,8 @@ contract TokenBharat {
         //adding the balance to owner's wallet and increasing the supply.
         balances[msg.sender] += amount;
         totalSupply += amount;
+
+        emit logMint(owner, owner, amount);
     }
 
     //function to transfer the tokens from one wallet to another.
@@ -77,6 +84,8 @@ contract TokenBharat {
         //subtracting balance from sender and adding in receiver.
         balances[msg.sender] -= amount;
         balances[to] += amount;
+
+        emit logTransfer(msg.sender, to, amount);
     }
 }
 
@@ -110,6 +119,8 @@ contract AdvancedToken is TokenBharat {
         //adding the balance to owner's wallet and increasing the supply.
         balances[user] += amount;
         totalSupply += amount;
+
+        emit logMint(owner, user, amount);
     }
 
     //To burn token from own wallet by any user
@@ -123,6 +134,8 @@ contract AdvancedToken is TokenBharat {
         //subtracting balance from owner's wallet and total supply
         balances[msg.sender] -= amount;
         totalSupply -= amount;
+
+        emit logBurn(msg.sender, msg.sender, amount);
     }
 
     function transfer(uint256 amount, address to) public override {
@@ -137,6 +150,8 @@ contract AdvancedToken is TokenBharat {
         //subtracting balance from sender and adding in receiver.
         balances[msg.sender] -= amount;
         balances[to] += amount;
+
+        emit logTransfer(msg.sender, to, amount);
     }
 
     //Funtion to lock tokens of any user by owner of contract.
@@ -159,6 +174,8 @@ contract AdvancedToken is TokenBharat {
         );
 
         lockPeriodAndAmount[user].push(newLock);
+
+        emit logLock(owner, user, amount, lockDuration);
     }
 
     //function to return number of tokens locked of a user.
