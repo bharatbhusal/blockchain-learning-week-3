@@ -101,15 +101,23 @@ describe("AdvancedToken", function() {
         await advancedToken.connect(addr1).burn(userBalance - tokendToLock + 1n);
     });
 
+    // Test token transfer function
+    it("Should transfer tokens between addresses", async function() {
+        const userBalance = await advancedToken.balances(addr1);
+        const ownerBalance = await advancedToken.balances(owner);
+        const tokensToTransfer = 10n;
 
+        await advancedToken.connect(owner).transfer(tokensToTransfer, addr1);
 
+        expect(await advancedToken.balances(owner)).to.equal(ownerBalance - tokensToTransfer);
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance + tokensToTransfer);
 
-    // // Test token transfer function
-    // it("Should transfer tokens between addresses", async function() {
-    //     await advancedToken.connect(owner).transfer(50n * (10n ** 18n), addr1);
-    //     expect(await advancedToken.balances(owner)).to.equal(530n * (10n ** 18n));
-    //     expect(await advancedToken.balances(addr1)).to.equal(80n * (10n ** 18n));
-    // });
+        await advancedToken.connect(addr1).transfer(tokensToTransfer, owner);
+
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance);
+        expect(await advancedToken.balances(owner)).to.equal(ownerBalance);
+
+    });
 
     // // Add more tests for edge cases and additional functionalities as needed
 });
