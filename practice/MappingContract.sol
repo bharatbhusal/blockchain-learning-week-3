@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-
-
 contract MappingContract {
-
-    enum branch{
+    enum branch {
         CSE,
         CS,
         AI_ML,
         IOT
     }
 
-    enum rollInitialsType{
+    enum rollInitialsType {
         HU21,
         HU22,
         VU21,

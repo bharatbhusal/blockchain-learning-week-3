@@ -15,7 +15,7 @@ contract TokenBharat {
     // Public states
     string public name;
     string public symbol;
-    uint8 decimal;
+    uint8 public decimal;
     address public owner;
     uint256 public totalSupply;
     uint256 public maxSupply;
@@ -70,7 +70,7 @@ contract TokenBharat {
     }
 
     //function to transfer the tokens from one wallet to another.
-    function tranfer(uint256 amount, address to) public virtual {
+    function transfer(uint256 amount, address to) public virtual {
         //the receiving wallet should be valid and sender should have enough balance.
         require(balances[msg.sender] >= amount, "Insufficient balance");
         require(to != address(0), "Invalid address");
@@ -125,7 +125,7 @@ contract AdvancedToken is TokenBharat {
         totalSupply -= amount;
     }
 
-    function tranfer(uint256 amount, address to) public override {
+    function transfer(uint256 amount, address to) public override {
         //Sender should have enough balance. subtracting locked tokens while comparision.
         require(
             balances[msg.sender] - numberOfTokensLocked(msg.sender) >= amount,
