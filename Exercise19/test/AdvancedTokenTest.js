@@ -57,6 +57,22 @@ describe("AdvancedToken", function() {
 
     });
 
+    // Token can't be minted beyond max Supply.
+    it("Non owner Should not mint tokens", async function() {
+        const maxSupply = await advancedToken.maxSupply();
+        const totalSupply = await advancedToken.totalSupply();
+        const userBalance = await advancedToken.balances(addr1);
+        const ownerBalance = await advancedToken.balances(owner);
+        const tokensToMint = maxSupply - totalSupply + 1n;
+
+        await expect(advancedToken.connect(owner).mintToOwner(tokensToMint)).to.be.revertedWith("Max supply exceeding");
+        await expect(advancedToken.connect(owner).mintToUser(addr1, tokensToMint)).to.be.revertedWith("Max supply exceeding");
+
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance);
+        expect(await advancedToken.balances(owner)).to.equal(ownerBalance);
+
+    });
+
 
 
 
