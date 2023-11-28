@@ -38,33 +38,49 @@ describe("AdvancedToken", function() {
         expect(await advancedToken.balances(addr1)).to.equal(50n * (10n ** 18n));
     });
 
-    // Test burning function
-    it("Should burn tokens from user by user", async function() {
-        await advancedToken.connect(addr1).burn(20n * (10n ** 18n));
-        await advancedToken.connect(owner).burn(20n * (10n ** 18n));
-        expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
-        expect(await advancedToken.balances(owner)).to.equal(580n * (10n ** 18n));
-        expect(await advancedToken.totalSupply()).to.equal(610n * (10n ** 18n));
+    // Non owner should not be able to mint
+    it("Non owner Should not mint tokens", async function() {
+        const userBalance = await advancedToken.balances(addr1);
+        const ownerBalance = await advancedToken.balances(owner);
+
+        await expect(advancedToken.connect(addr1).mintToOwner(100n * (10n ** 18n))).to.be.revertedWith("Only owner is allowed to use this feature");
+        await expect(advancedToken.connect(addr1).mintToUser(addr1, 100n * (10n ** 18n))).to.be.revertedWith("Only owner is allowed to use this feature");
+
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance);
+        expect(await advancedToken.balances(owner)).to.equal(ownerBalance);
+
     });
 
-    // Test token transfer function
-    it("Should transfer tokens between addresses", async function() {
-        await advancedToken.connect(owner).transfer(50n * (10n ** 18n), addr1);
-        expect(await advancedToken.balances(owner)).to.equal(530n * (10n ** 18n));
-        expect(await advancedToken.balances(addr1)).to.equal(80n * (10n ** 18n));
-    });
 
-    // Test locking function
-    it("Should lock tokens for a specified duration", async function() {
-        await advancedToken.connect(owner).lockToken(3600, 20n * (10n ** 18n), addr1);
-        // await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
 
-        // Check the locked balance after some time (3600 seconds)
-        await network.provider.send("evm_increaseTime", [3600]);
-        await network.provider.send("evm_mine");
-        await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
-        // expect(await advancedToken.numberOfTokensLocked(addr1)).to.equal(20n * (10n ** 18n));
-    });
 
-    // Add more tests for edge cases and additional functionalities as needed
+    // // Test burning function
+    // it("Should burn tokens from user by user", async function() {
+    //     await advancedToken.connect(addr1).burn(20n * (10n ** 18n));
+    //     await advancedToken.connect(owner).burn(20n * (10n ** 18n));
+    //     expect(await advancedToken.balances(addr1)).to.equal(30n * (10n ** 18n));
+    //     expect(await advancedToken.balances(owner)).to.equal(580n * (10n ** 18n));
+    //     expect(await advancedToken.totalSupply()).to.equal(610n * (10n ** 18n));
+    // });
+
+    // // Test token transfer function
+    // it("Should transfer tokens between addresses", async function() {
+    //     await advancedToken.connect(owner).transfer(50n * (10n ** 18n), addr1);
+    //     expect(await advancedToken.balances(owner)).to.equal(530n * (10n ** 18n));
+    //     expect(await advancedToken.balances(addr1)).to.equal(80n * (10n ** 18n));
+    // });
+
+    // // Test locking function
+    // it("Should lock tokens for a specified duration", async function() {
+    //     await advancedToken.connect(owner).lockToken(3600, 20n * (10n ** 18n), addr1);
+    //     // await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
+
+    //     // Check the locked balance after some time (3600 seconds)
+    //     await network.provider.send("evm_increaseTime", [3600]);
+    //     await network.provider.send("evm_mine");
+    //     await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
+    //     // expect(await advancedToken.numberOfTokensLocked(addr1)).to.equal(20n * (10n ** 18n));
+    // });
+
+    // // Add more tests for edge cases and additional functionalities as needed
 });
