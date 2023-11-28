@@ -77,13 +77,28 @@ describe("AdvancedToken", function() {
     it("Should burn tokens from user", async function() {
         const totalSupply = await advancedToken.totalSupply();
         const userBalance = await advancedToken.balances(addr1);
-        const tokensToBurn = userBalance - 1n;
+        const tokensToBurn = userBalance - 10n;
 
         await advancedToken.connect(addr1).burn(tokensToBurn);
         await expect(advancedToken.connect(addr1).burn(tokensToBurn + 2n)).to.be.revertedWith("Insufficient balance");
 
         expect(await advancedToken.balances(addr1)).to.equal(userBalance - tokensToBurn);
         expect(await advancedToken.totalSupply()).to.equal(totalSupply - tokensToBurn);
+    });
+
+    // Test locking function
+    it("Should lock tokens for a specified duration", async function() {
+        const userBalance = await advancedToken.balances(addr1);
+        const tokendToLock = userBalance - 1n;
+        const lockDuration = 36000;
+
+        await advancedToken.connect(owner).lockToken(lockDuration, tokendToLock, addr1);
+        await expect(advancedToken.connect(addr1).burn(userBalance - tokendToLock + 1n)).to.be.revertedWith("Insufficient balance");
+
+        // Check the locked balance after some time (3600 seconds)
+        await network.provider.send("evm_increaseTime", [lockDuration]);
+        await network.provider.send("evm_mine");
+        await advancedToken.connect(addr1).burn(userBalance - tokendToLock + 1n);
     });
 
 
@@ -94,18 +109,6 @@ describe("AdvancedToken", function() {
     //     await advancedToken.connect(owner).transfer(50n * (10n ** 18n), addr1);
     //     expect(await advancedToken.balances(owner)).to.equal(530n * (10n ** 18n));
     //     expect(await advancedToken.balances(addr1)).to.equal(80n * (10n ** 18n));
-    // });
-
-    // // Test locking function
-    // it("Should lock tokens for a specified duration", async function() {
-    //     await advancedToken.connect(owner).lockToken(3600, 20n * (10n ** 18n), addr1);
-    //     // await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
-
-    //     // Check the locked balance after some time (3600 seconds)
-    //     await network.provider.send("evm_increaseTime", [3600]);
-    //     await network.provider.send("evm_mine");
-    //     await advancedToken.connect(addr1).transfer(70n * (10n ** 18n), owner);
-    //     // expect(await advancedToken.numberOfTokensLocked(addr1)).to.equal(20n * (10n ** 18n));
     // });
 
     // // Add more tests for edge cases and additional functionalities as needed
