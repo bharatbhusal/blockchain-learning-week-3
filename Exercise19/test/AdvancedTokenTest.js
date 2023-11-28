@@ -27,24 +27,30 @@ describe("AdvancedToken", function() {
     });
 
     // Test minting functions
-    it("Should mint tokens to owner", async function() {
-        await advancedToken.mintToOwner(100n * (10n ** 18n));
-        expect(await advancedToken.totalSupply()).to.equal(600n * (10n ** 18n));
-        expect(await advancedToken.balances(owner)).to.equal(600n * (10n ** 18n));
-    });
+    it("Should mint tokens by owner", async function() {
+        const ownerBalance = await advancedToken.balances(owner);
+        const userBalance = await advancedToken.balances(addr1);
+        const totalSupply = await advancedToken.totalSupply();
+        const tokensToMintToOwner = 100n * (10n ** 18n);
+        const tokensToMintToUser = 50n * (10n ** 18n);
 
-    it("Should mint tokens to user by owner", async function() {
-        await advancedToken.connect(owner).mintToUser(addr1, 50n * (10n ** 18n));
-        expect(await advancedToken.balances(addr1)).to.equal(50n * (10n ** 18n));
+        await advancedToken.mintToOwner(tokensToMintToOwner);
+        await advancedToken.connect(owner).mintToUser(addr1, tokensToMintToUser);
+
+        expect(await advancedToken.totalSupply()).to.equal(totalSupply + tokensToMintToOwner + tokensToMintToUser);
+        expect(await advancedToken.balances(owner)).to.equal(ownerBalance + tokensToMintToOwner);
+        expect(await advancedToken.balances(addr1)).to.equal(userBalance + tokensToMintToUser);
     });
 
     // Non owner should not be able to mint
     it("Non owner Should not mint tokens", async function() {
         const userBalance = await advancedToken.balances(addr1);
         const ownerBalance = await advancedToken.balances(owner);
+        const tokensToMintToOwner = 100n * (10n ** 18n);
+        const tokensToMintToUser = 50n * (10n ** 18n);
 
-        await expect(advancedToken.connect(addr1).mintToOwner(100n * (10n ** 18n))).to.be.revertedWith("Only owner is allowed to use this feature");
-        await expect(advancedToken.connect(addr1).mintToUser(addr1, 100n * (10n ** 18n))).to.be.revertedWith("Only owner is allowed to use this feature");
+        await expect(advancedToken.connect(addr1).mintToOwner(tokensToMintToOwner)).to.be.revertedWith("Only owner is allowed to use this feature");
+        await expect(advancedToken.connect(addr1).mintToUser(addr1, tokensToMintToUser)).to.be.revertedWith("Only owner is allowed to use this feature");
 
         expect(await advancedToken.balances(addr1)).to.equal(userBalance);
         expect(await advancedToken.balances(owner)).to.equal(ownerBalance);
