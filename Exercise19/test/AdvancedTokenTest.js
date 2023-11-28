@@ -118,6 +118,4 @@ describe("AdvancedToken", function() {
         expect(await advancedToken.balances(owner)).to.equal(ownerBalance);
 
     });
-
-    // // Add more tests for edge cases and additional functionalities as needed
 });
