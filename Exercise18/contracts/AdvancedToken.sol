@@ -1,16 +1,7 @@
-//Exercise 18: Hardhat Deployment and Testing
-//   -Problem Statement: Deploy the "AdvancedToken" contract onto the Hardhat Network and write unit tests to ensure functionalities. Tests should also ensure error scenarios are handled correctly. For instance, non-owners shouldn't be able to mint tokens.
-//   - eployment: Write a Hardhat script to deploy your contract.
-//   - Unit Testing:** Write tests to ensure:
-//    1. Tokens are minted correctly and reflected in the balance.
-//    2. Tokens cannot be minted beyond the maximum supply.
-//    3. Users can burn their tokens, reflecting the reduced total supply.
-//    4. Tokens can be locked and unlocked correctly.
-//    5. Locked tokens cannot be transferred.=================================================================================================================================
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+// TokenBharat contract containing basic token functionality
 contract TokenBharat {
     // Public states
     string public name;
@@ -20,6 +11,7 @@ contract TokenBharat {
     uint256 public totalSupply;
     uint256 public maxSupply;
 
+    // Events to log various actions
     event logMint(address indexed by, address indexed to, uint256 amount);
     event logBurn(address indexed by, address indexed from, uint256 amount);
     event logTransfer(address from, address to, uint256 amount);
@@ -30,7 +22,7 @@ contract TokenBharat {
         uint256 duration
     );
 
-    //modifier for features that only owner can run.
+    // Modifier for features that only the owner can run
     modifier onlyOwner() {
         require(
             msg.sender == owner,
@@ -39,9 +31,10 @@ contract TokenBharat {
         _;
     }
 
-    // balance of the given address. balance getter function.
+    // Mapping to track balances of addresses
     mapping(address => uint256) public balances;
 
+    // Constructor to initialize the token with specific parameters
     constructor(
         string memory _name,
         string memory _symbol,
@@ -53,40 +46,40 @@ contract TokenBharat {
         symbol = _symbol;
         decimal = _decimal;
 
-        //TokenBharat contract's constructor caller is the owner of the contract.
+        // TokenBharat contract's constructor caller is the owner of the contract
         owner = msg.sender;
 
-        //Maximum supply. totalSupply can't exceed this amount.
+        // Maximum supply. totalSupply can't exceed this amount.
         maxSupply = _maxSupply;
 
-        // total supply of the token is equal to the initially set supply.
-        //initial supply can't be more than maxsupply.
+        // Total supply of the token is equal to the initially set supply.
+        // Initial supply can't be more than maxSupply.
         require(
             initialSupply <= maxSupply,
             "Initial supply can't be more than maxSupply"
         );
         totalSupply = initialSupply;
 
-        //owner of the contract owns all the supply of the token.
+        // Owner of the contract owns all the supply of the token.
         balances[msg.sender] = initialSupply;
     }
 
-    // function to mint the tokens in own wallet.
+    // Function to mint the tokens in the owner's wallet
     function mintToOwner(uint256 amount) public onlyOwner {
         require((totalSupply + amount) <= maxSupply, "Max supply exceeding");
-        //adding the balance to owner's wallet and increasing the supply.
+        // Adding the balance to the owner's wallet and increasing the supply.
         balances[msg.sender] += amount;
         totalSupply += amount;
 
         emit logMint(owner, owner, amount);
     }
 
-    //function to transfer the tokens from one wallet to another.
+    // Function to transfer the tokens from one wallet to another
     function transfer(uint256 amount, address to) public virtual {
-        //the receiving wallet should be valid and sender should have enough balance.
+        // The receiving wallet should be valid, and the sender should have enough balance.
         require(balances[msg.sender] >= amount, "Insufficient balance");
         require(to != address(0), "Invalid address");
-        //subtracting balance from sender and adding in receiver.
+        // Subtracting balance from the sender and adding to the receiver.
         balances[msg.sender] -= amount;
         balances[to] += amount;
 
@@ -94,20 +87,23 @@ contract TokenBharat {
     }
 }
 
+// AdvancedToken contract inheriting from TokenBharat
 contract AdvancedToken is TokenBharat {
-    //event to log each lock item.
+    // Event to log each lock item
     event logLock(uint256, uint256, uint256);
 
-    //Lock iteam struct
+    // Lock item struct
     struct Lock {
         uint256 amount;
         uint256 lockedTimeStamp;
         uint256 unlockTimeStamp;
     }
 
-    //user address mapping to the tuple of Locks. one user can have multiple lock duration for varying number of tokens.
+    // User address mapping to the tuple of Locks.
+    // One user can have multiple lock durations for varying numbers of tokens.
     mapping(address => Lock[]) private lockPeriodAndAmount;
 
+    // Constructor to initialize AdvancedToken with specific parameters
     constructor()
         TokenBharat(
             "AdvancedTokenBharat",
@@ -118,48 +114,49 @@ contract AdvancedToken is TokenBharat {
         )
     {}
 
-    //To mint tokens in desired user wallet by owner
+    // To mint tokens in a desired user wallet by the owner
     function mintToUser(address user, uint256 amount) public onlyOwner {
         require((totalSupply + amount) <= maxSupply, "Max supply exceeding");
-        //adding the balance to owner's wallet and increasing the supply.
+        // Adding the balance to the owner's wallet and increasing the supply.
         balances[user] += amount;
         totalSupply += amount;
 
         emit logMint(owner, user, amount);
     }
 
-    //To burn token from own wallet by any user
+    // To burn tokens from own wallet by any user
     function burn(uint256 amount) public {
-        //subtracting locked tokens while comparision.
+        // Subtracting locked tokens while comparison.
         require(
             balances[msg.sender] - numberOfTokensLocked(msg.sender) >= amount,
             "Insufficient balance"
         );
 
-        //subtracting balance from owner's wallet and total supply
+        // Subtracting balance from owner's wallet and total supply
         balances[msg.sender] -= amount;
         totalSupply -= amount;
 
         emit logBurn(msg.sender, msg.sender, amount);
     }
 
+    // Function to transfer tokens
     function transfer(uint256 amount, address to) public override {
-        //Sender should have enough balance. subtracting locked tokens while comparision.
+        // Sender should have enough balance. Subtracting locked tokens while comparison.
         require(
             balances[msg.sender] - numberOfTokensLocked(msg.sender) >= amount,
             "Insufficient balance"
         );
-        // the receiving wallet should be valid
+        // The receiving wallet should be valid.
         require(to != address(0), "Invalid address");
 
-        //subtracting balance from sender and adding in receiver.
+        // Subtracting balance from sender and adding to receiver.
         balances[msg.sender] -= amount;
         balances[to] += amount;
 
         emit logTransfer(msg.sender, to, amount);
     }
 
-    //Funtion to lock tokens of any user by owner of contract.
+    // Function to lock tokens of any user by the owner of the contract
     function lockToken(
         uint256 lockDuration,
         uint256 amount,
@@ -183,7 +180,7 @@ contract AdvancedToken is TokenBharat {
         emit logLock(owner, user, amount, lockDuration);
     }
 
-    //function to return number of tokens locked of a user.
+    // Function to return the number of tokens locked by a user
     function numberOfTokensLocked(address user) private view returns (uint256) {
         Lock[] memory userLock = lockPeriodAndAmount[user];
         for (uint8 i = 0; i < userLock.length; i++) {
