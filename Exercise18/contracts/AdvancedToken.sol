@@ -20,10 +20,15 @@ contract TokenBharat {
     uint256 public totalSupply;
     uint256 public maxSupply;
 
-    event logMint(address indexed  by, address  indexed to, uint256 amount);
+    event logMint(address indexed by, address indexed to, uint256 amount);
     event logBurn(address indexed by, address indexed from, uint256 amount);
     event logTransfer(address from, address to, uint256 amount);
-    event logLock(address indexed by, address indexed from, uint256 amount, uint256 duration);
+    event logLock(
+        address indexed by,
+        address indexed from,
+        uint256 amount,
+        uint256 duration
+    );
 
     //modifier for features that only owner can run.
     modifier onlyOwner() {
